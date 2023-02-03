@@ -21,7 +21,7 @@ services:
         max_attempts: 3
         window: 120s
     ports:
-      - 8070:8070
+      - "8070:8070"
     networks:
       - westes-network
     environment:
@@ -33,6 +33,7 @@ services:
     mem_limit: 700m
     depends_on:
       - config-server
+      - eureka
     deploy:
       restart_policy:
         condition: on-failure
@@ -46,6 +47,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+      EUREKA_URI: eureka:http://eureka:8070/
 
   loans:
     image: westes/loans:latest
