@@ -9,6 +9,25 @@ services:
     networks:
       - westes-network
 
+  eureka:
+    image: westes/eureka:latest
+    mem_limit: 700m
+    depends_on:
+      - config-server
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+    ports:
+      - 8070:8070
+    networks:
+      - westes-network
+    environment:
+      SPRING_PROFILES_ACTIVE: ${env}
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+
   accounts:
     image: westes/accounts:latest
     mem_limit: 700m
