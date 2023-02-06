@@ -25,7 +25,7 @@ services:
     networks:
       - westes-network
     environment:
-      SPRING_PROFILES_ACTIVE: ${env}
+      SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
 
   accounts:
@@ -47,13 +47,14 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
-      EUREKA_URI: eureka:http://eureka:8070/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
 
   loans:
     image: westes/loans:latest
     mem_limit: 700m
     depends_on:
       - config-server
+      - eureka
     deploy:
       restart_policy:
         condition: on-failure
@@ -67,12 +68,14 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
 
   cards:
     image: westes/cards:latest
     mem_limit: 700m
     depends_on:
       - config-server
+      - eureka
     deploy:
       restart_policy:
         condition: on-failure
@@ -86,6 +89,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
 
 networks:
   westes-network:
