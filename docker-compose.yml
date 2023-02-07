@@ -17,7 +17,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 10s
+        delay: 15s
         max_attempts: 3
         window: 120s
     ports:
@@ -37,7 +37,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 10s
+        delay: 30s
         max_attempts: 3
         window: 120s
     ports:
@@ -58,7 +58,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 10s
+        delay: 30s
         max_attempts: 3
         window: 120s
     ports:
@@ -79,7 +79,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 10s
+        delay: 30s
         max_attempts: 3
         window: 120s
     ports:
