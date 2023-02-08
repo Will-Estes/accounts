@@ -7,6 +7,8 @@ import com.westes.accounts.model.Properties;
 import com.westes.accounts.repository.AccountRepository;
 import com.westes.accounts.service.client.CardsFeignClient;
 import com.westes.accounts.service.client.LoansFeignClient;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +31,8 @@ public class AccountsController {
   }
 
   @GetMapping("/customer-details/{customerId}")
-  @CircuitBreaker(name = "detailsForCustomerSupportApp")
+//  @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "customerDetailsFallback")
+  @Retry(name = "retryForCustomerDetails", fallbackMethod = "customerDetailsFallback")
   public CustomerDetail getCustomerDetails(@PathVariable int customerId) {
     var account = accountRepository.findAccountByCustomerId(customerId);
     var loans = loansFeignClient.getLoansDetails(customerId);
@@ -48,6 +51,28 @@ public class AccountsController {
     return new Properties(accountsConfig.getMsg(),
         accountsConfig.getBuildVersion(),
         accountsConfig.getMailDetails(), accountsConfig.getActiveBranches());
+  }
+
+  // FallbackMethod
+  private CustomerDetail customerDetailsFallback(int customerId, Throwable t) {
+    var account = accountRepository.findAccountByCustomerId(customerId);
+    var loans = loansFeignClient.getLoansDetails(customerId);
+
+    CustomerDetail customerDetail = new CustomerDetail();
+    customerDetail.setAccount(account);
+    customerDetail.setLoans(loans);
+
+    return customerDetail;
+  }
+
+  @GetMapping("/sayHello")
+  @RateLimiter(name="sayHello", fallbackMethod = "sayHelloFallback")
+  public String sayHello() {
+    return "Hello";
+  }
+
+  public String sayHelloFallback(Throwable t) {
+    return "Hi there!";
   }
 
 }
