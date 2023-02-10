@@ -12,8 +12,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 
 @RestController
@@ -33,10 +33,11 @@ public class AccountsController {
   @GetMapping("/customer-details/{customerId}")
 //  @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "customerDetailsFallback")
   @Retry(name = "retryForCustomerDetails", fallbackMethod = "customerDetailsFallback")
-  public CustomerDetail getCustomerDetails(@PathVariable int customerId) {
+  public CustomerDetail getCustomerDetails(
+      @RequestHeader("westes-correlation-id") String correlationId, @PathVariable int customerId) {
     var account = accountRepository.findAccountByCustomerId(customerId);
-    var loans = loansFeignClient.getLoansDetails(customerId);
-    var cards = cardsFeignClient.getCardDetails(customerId);
+    var loans = loansFeignClient.getLoansDetails(correlationId, customerId);
+    var cards = cardsFeignClient.getCardDetails(correlationId, customerId);
 
     CustomerDetail customerDetail = new CustomerDetail();
     customerDetail.setAccount(account);
@@ -54,9 +55,10 @@ public class AccountsController {
   }
 
   // FallbackMethod
-  private CustomerDetail customerDetailsFallback(int customerId, Throwable t) {
+  private CustomerDetail customerDetailsFallback(String correlationId, int customerId,
+      Throwable t) {
     var account = accountRepository.findAccountByCustomerId(customerId);
-    var loans = loansFeignClient.getLoansDetails(customerId);
+    var loans = loansFeignClient.getLoansDetails(correlationId, customerId);
 
     CustomerDetail customerDetail = new CustomerDetail();
     customerDetail.setAccount(account);
@@ -66,7 +68,7 @@ public class AccountsController {
   }
 
   @GetMapping("/sayHello")
-  @RateLimiter(name="sayHello", fallbackMethod = "sayHelloFallback")
+  @RateLimiter(name = "sayHello", fallbackMethod = "sayHelloFallback")
   public String sayHello() {
     return "Hello";
   }

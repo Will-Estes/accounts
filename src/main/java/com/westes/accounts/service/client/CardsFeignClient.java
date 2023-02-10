@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient("cards")
+@FeignClient("cards-service")
 public interface CardsFeignClient {
 
   @GetMapping("/cards/{customerId}")
-  List<Card> getCardDetails(@PathVariable int customerId);
+  List<Card> getCardDetails(@RequestHeader("westes-correlation-id") String correlationId,
+      @PathVariable int customerId);
 }
