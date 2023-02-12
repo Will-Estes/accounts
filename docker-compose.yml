@@ -1,13 +1,25 @@
 version: "3.8"
 
 services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - westes-network
+
   config-server:
     image: westes/config-server:latest
     mem_limit: 700m
+    depends_on:
+      - zipkin
     ports:
-      - 8071:8071
+      - "8071:8071"
     networks:
       - westes-network
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
   eureka:
     image: westes/eureka:latest
@@ -27,6 +39,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
   gateway:
     image: westes/gateway:latest
@@ -51,6 +64,7 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
   accounts:
     image: westes/accounts:latest
@@ -72,6 +86,7 @@ services:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
   loans:
     image: westes/loans:latest
@@ -93,6 +108,7 @@ services:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
   cards:
     image: westes/cards:latest
@@ -114,6 +130,7 @@ services:
       SPRING_PROFILES_ACTIVE: ${env}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8070/eureka
+      MANAGEMENT.ZIPKIN.TRACING.ENDPOINT: http://zipkin:9411/
 
 networks:
   westes-network:
