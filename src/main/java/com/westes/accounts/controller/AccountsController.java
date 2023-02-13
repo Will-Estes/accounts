@@ -9,6 +9,7 @@ import com.westes.accounts.service.client.CardsFeignClient;
 import com.westes.accounts.service.client.LoansFeignClient;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,14 @@ public class AccountsController {
   private final LoansFeignClient loansFeignClient;
 
   @GetMapping("/accounts/{customerId}")
+  @Timed(value = "getAccountDetails.time", description = "Time taken to get account details")
   public Account getAccountDetails(@PathVariable int customerId) {
     return accountRepository.findAccountByCustomerId(customerId);
   }
 
   @GetMapping("/customer-details/{customerId}")
   @Retry(name = "retryForCustomerDetails", fallbackMethod = "customerDetailsFallback")
+  @Timed(value = "getCustomerDetails.time", description = "Time taken to get customer details")
   public CustomerDetail getCustomerDetails(@PathVariable int customerId) {
     log.info("getCustomerDetails started");
     var account = accountRepository.findAccountByCustomerId(customerId);
