@@ -30,7 +30,7 @@ services:
       - westes-network
 
   config-server:
-    image: westes/config-server:latest
+    image: willestes82892/config-server:latest
     mem_limit: 700m
     depends_on:
       - zipkin
@@ -43,7 +43,7 @@ services:
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   eureka:
-    image: westes/eureka:latest
+    image: willestes82892/eureka:latest
     mem_limit: 700m
     depends_on:
       - config-server
@@ -63,7 +63,7 @@ services:
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   gateway:
-    image: westes/gateway:latest
+    image: willestes82892/gateway:latest
     mem_limit: 700m
     depends_on:
       - config-server
@@ -88,7 +88,7 @@ services:
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   accounts:
-    image: westes/accounts:latest
+    image: willestes82892/accounts:latest
     mem_limit: 700m
     depends_on:
       - config-server
@@ -110,7 +110,7 @@ services:
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   loans:
-    image: westes/loans:latest
+    image: willestes82892/loans:latest
     mem_limit: 700m
     depends_on:
       - config-server
@@ -132,7 +132,7 @@ services:
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   cards:
-    image: westes/cards:latest
+    image: willestes82892/cards:latest
     mem_limit: 700m
     depends_on:
       - config-server

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-deployment
+  labels:
+    app: eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: willestes82892/eureka:latest
+          ports:
+            - containerPort: 8070
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: westes-configmap
+                  key: SPRING_PROFILES_ACTIVE
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: westes-configmap
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+            - name: SPRING_CONFIG_IMPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: westes-configmap
+                  key: SPRING_CONFIG_IMPORT
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-service
+spec:
+  selector:
+    app: eureka
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8070
+      targetPort: 8070
